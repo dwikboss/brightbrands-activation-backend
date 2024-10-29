@@ -71,7 +71,7 @@ function extractButtonColors($) {
     return buttonColors;
 }
 
-async function handleMessage(parsedContent, dev) {
+async function handleMessage(siteUrl, parsedContent, dev) {
     const fbType = dev
         ? "De feedback moet positief zijn! Geen kritiek!"
         : "De feedback moet kritisch zijn! De klant zit niet bij ons dus we moeten negatieve dingen highlighten op een grappige niet al te serieuze manier. Maak het geen complete roast sessie, hou het luchtig maar wel grappig.";
@@ -82,7 +82,7 @@ async function handleMessage(parsedContent, dev) {
                 { 
                     role: "system", 
                     content: 
-                    `Je bent vier personen die hun eigen feedback geven op de volgende website: Dit zijn de titels: ${parsedContent.titles}, Dit zijn de kleuren: ${parsedContent.colors}. Benoem de kleur hexcodes NIET maar benoem de kleur naam. Reken dus zelf om welke hexcode welke kleur is. ALS er geen opgegeven kleuren zijn, maak dan een lichte grap over hoe de site wat meer verschillende kleuren kan gebruiken maar benoem verder GEEN kleuren. Baseer je tekst hierop! Je speelt Rick Bakens, Dwiky van Bosstraten, Eric van den Berk en Olaf van Gastel. De reactie moet in het NEDERLANDS zijn. We zijn een NEDERLANDS bureau. Geef het terug in het volgende JSON-formaat: {'RICK': '<RICKS TIPS/COMPLIMENTS>', 'DWIKY': '<DWIKYS TIPS/COMPLIMENTS>'}. etc. Laat ze casual praten met af en toe een grapje naar elkaar. Vertel bijvoorbeeld ook iets over de content/kleuren/opmaak van de site. Vertel NIKS over eventuele animaties! Let op! Bekijk de meegegeven site samenvatting goed en baseer het hier op! Verzin geen onzin. Het moet echt van de site afkomen! Geef veel referenties naar de website en benoem ook zeker welke teksten die bevat zodat de klant weet dat zijn website echt wordt bekeken. ${fbType}`
+                    `Je bent vier personen die hun eigen feedback geven op de volgende website: Dit is de url: ${siteUrl}, Dit zijn de titels: ${parsedContent.titles}, Dit zijn de kleuren: ${parsedContent.colors}. Benoem de kleur hexcodes NIET maar benoem de kleur naam. Reken dus zelf om welke hexcode welke kleur is. ALS er geen opgegeven kleuren zijn, maak dan een lichte grap over hoe de site wat meer verschillende kleuren kan gebruiken maar benoem verder GEEN kleuren. Baseer je tekst hierop! Je speelt Rick Bakens, Dwiky van Bosstraten, Eric van den Berk en Olaf van Gastel. De reactie moet in het NEDERLANDS zijn. We zijn een NEDERLANDS bureau. Geef het terug in het volgende JSON-formaat: {'RICK': '<RICKS TIPS/COMPLIMENTS>', 'DWIKY': '<DWIKYS TIPS/COMPLIMENTS>'}. etc. Laat ze casual praten met af en toe een grapje naar elkaar. Vertel bijvoorbeeld ook iets over de content/kleuren/opmaak van de site. Vertel NIKS over eventuele animaties! Let op! Bekijk de meegegeven site samenvatting goed en baseer het hier op! Verzin geen onzin. Het moet echt van de site afkomen! Geef veel referenties naar de website en benoem ook zeker welke teksten die bevat zodat de klant weet dat zijn website echt wordt bekeken. ${fbType} . Als het een super grote site is (denk aan Facebook, YouTube, Twitter, Google, etc.) kraak hem HELEMAAL AF.`
                 }
             ],
             model: "gpt-4o",
@@ -100,7 +100,7 @@ app.post("/message", async (req, res) => {
     try {
         const siteUrl = req.body.inputMessage;
         const parsedContent = await fetchAndParseHtml(siteUrl);
-        const reply = await handleMessage(parsedContent, parsedContent.developedByUs);
+        const reply = await handleMessage(siteUrl, parsedContent, parsedContent.developedByUs);
         res.json({ reply });
     } catch (error) {
         res.status(500).json({ error: error.message });
